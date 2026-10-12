@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>收據 OCR 讀取器 v6.4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f2ee;--sur:#ffffff;--sur2:#faf8f4;--sur3:#f1eee8;--bdr:rgba(0,0,0,.09);
+  --txt:#171614;--mut:#696762;--fnt:#96938d;--pri:#0a6b72;--prih:#08575d;--pri2:#d7eaec;--pri3:#eef7f7;
+  --ok:#2f6b1b;--okbg:#ebf5e6;--err:#9d2d2d;--errbg:#f9ebeb;--chip:#f0ece6;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.06);
+  --r10:10px;--r12:12px;--r14:14px;--r18:18px;--ease:160ms cubic-bezier(.16,1,.3,1);
+  --font:'Noto Sans TC',sans-serif;--jp:'Noto Sans JP','Noto Sans TC',sans-serif;
+}
+html[data-theme="dark"]{
+  --bg:#151412;--sur:#1d1b19;--sur2:#23211f;--sur3:#2a2724;--bdr:rgba(255,255,255,.08);
+  --txt:#efece6;--mut:#b3aea7;--fnt:#7f7b74;--pri:#66aeb4;--prih:#7cc3c8;--pri2:#23393b;--pri3:#1b2c2e;
+  --ok:#8ecb70;--okbg:#213122;--err:#ef9a9a;--errbg:#311e1e;--chip:#2c2926;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:none;text-size-adjust:none;scroll-behavior:smooth}
+body{min-height:100dvh;background:var(--bg);color:var(--txt);font:16px/1.55 var(--font)}
+img,svg{display:block;max-width:100%;height:auto}button,input,textarea{font:inherit;color:inherit}button{border:none;background:none;cursor:pointer}
+.wrap{max-width:760px;margin:auto;padding:10px 10px 28px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:8px;min-width:0}.brand svg{flex:none;width:34px;height:34px}
+.site-ttl{font-size:clamp(1rem,2.8vw,1.28rem);font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.site-sub{display:none}
+.theme-btn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--bdr);border-radius:999px;background:var(--sur);box-shadow:var(--shadow)}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-bottom:8px}
+.sticky-settings{position:sticky;top:max(6px, env(safe-area-inset-top));z-index:30;background:var(--bg);padding-top:calc(env(safe-area-inset-top,0px) + 4px);margin:-4px -2px 10px}.sticky-settings::before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;background:var(--bg);z-index:-2}.sticky-settings::after{content:"";position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) * -1);height:calc(env(safe-area-inset-top,0px) + 10px);background:var(--bg);z-index:-1}.compact-bar{border-bottom:1px solid var(--bdr)}.sticky-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:6px;padding:0 2px}.sticky-title{font-size:.84rem;font-weight:800}.sticky-sub{display:none}.compact-head{margin-bottom:4px}.compact-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:8px;box-shadow:0 6px 16px rgba(0,0,0,.06)}.select-wrap{min-width:0}.sel{width:100%;appearance:none;-webkit-appearance:none;background:var(--sur2);color:var(--txt);border:1px solid var(--bdr);border-radius:10px;padding:10px 34px 10px 10px;font-weight:700;line-height:1.15;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 16px) calc(50% - 3px),calc(100% - 11px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat}.sel:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(10,107,114,.12)}html[data-theme="dark"] .sel{background-color:var(--sur2);}.opt-lbl{display:block;font-size:.72rem;font-weight:800;color:var(--mut);letter-spacing:.04em;margin-bottom:5px}@media(max-width:640px){.sticky-settings{top:0;padding-top:calc(env(safe-area-inset-top,0px) + 2px);margin:0 0 8px}.sticky-title{font-size:.8rem}.compact-controls{grid-template-columns:1fr 1fr;gap:6px;padding:7px}.sel{padding:9px 30px 9px 9px;font-size:.88rem}}
+.stitle{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:8px}
+.info-panel{border:1px solid var(--bdr);border-radius:14px;background:var(--sur2);overflow:hidden;margin-bottom:12px}
+.info-panel summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.info-panel summary::-webkit-details-marker{display:none}.info-panel summary::after{content:'＋';color:var(--pri);font-size:1.05rem}.info-panel[open] summary::after{content:'－'}
+.info-body{padding:0 14px 14px;color:var(--mut)}.info-body ul{list-style:none;display:grid;gap:7px}.info-body li{font-size:.88rem}
+.opt-lbl{display:block;font-size:.8rem;font-weight:800;color:var(--mut);letter-spacing:.04em;margin-bottom:7px}
+.pickers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}@media(max-width:560px){.pickers{grid-template-columns:1fr}}
+.pick-btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;padding:10px 12px;border-radius:12px;background:var(--pri);color:#fff;font-weight:800;box-shadow:0 8px 18px rgba(10,107,114,.15);font-size:.92rem}
+.pick-btn.secondary{background:var(--sur2);color:var(--txt);border:1px solid var(--bdr);box-shadow:none}
+.pick-btn input{display:none}
+.dz{border:2px dashed rgba(10,107,114,.28);background:var(--pri3);border-radius:12px;padding:12px 10px;text-align:center;transition:border-color var(--ease),background var(--ease)}
+html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-color:var(--pri);background:var(--pri2)}
+.dz-hint{font-size:.8rem;color:var(--mut)}
+.prev-row{display:none;align-items:flex-start;gap:10px;background:var(--sur2);border:1px solid var(--bdr);border-radius:12px;padding:10px;margin-top:8px}
+.prev-img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--bdr);background:var(--sur3);flex:none}
+.prev-name{font-size:.88rem;font-weight:700;word-break:break-all;margin-bottom:4px}.sz-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.sz{font-size:.78rem;font-weight:800;border-radius:999px;padding:4px 10px}.sz-orig{background:var(--chip);color:var(--mut)}.sz-new{background:var(--okbg);color:var(--ok)}.sz-note{font-size:.82rem;color:var(--mut)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.btn-go,.mini-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 14px;border-radius:12px;font-weight:800;font-size:.92rem}
+.btn-go{flex:1;background:var(--pri);color:#fff}.btn-go:disabled{opacity:.58;cursor:not-allowed}.mini-btn{background:var(--sur2);border:1px solid var(--bdr)}
+.prog{display:none;margin-top:10px}.prog-bar{height:6px;background:var(--pri2);border-radius:999px;overflow:hidden}.prog-fill{height:100%;width:0;background:var(--pri);transition:width .22s linear}.prog-lbl{font-size:.8rem;color:var(--mut);text-align:center;margin-top:5px}
+.alert{display:none;border-radius:12px;padding:12px 14px;font-size:.92rem;border:1px solid rgba(157,45,45,.18);background:var(--errbg);color:var(--err);margin-bottom:10px}.retry-btn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;color:var(--pri);font-weight:800;border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur)}
+#res{display:none}.meta-box{display:none;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.meta-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--sur2);border:1px solid var(--bdr);font-size:.8rem;color:var(--mut)}.meta-chip b{color:var(--txt)}
+.ta-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px}.help{font-size:.82rem;color:var(--mut)}
+.copy-btn{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.quick-shot{cursor:pointer}.quick-cam{background:var(--pri3)}
+.ocr-ta{width:100%;min-height:190px;max-height:58dvh;resize:vertical;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);outline:none}.ocr-ta:focus{border-color:var(--pri)}
+footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}footer a{color:var(--pri);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <rect width="44" height="44" rx="12" fill="currentColor" style="color:var(--pri)"/>
+        <rect x="10" y="9" width="16" height="26" rx="2.5" fill="white" fill-opacity=".14"/>
+        <rect x="12" y="13" width="12" height="1.8" rx="0.9" fill="white"/>
+        <rect x="12" y="17" width="9" height="1.8" rx="0.9" fill="white" fill-opacity=".6"/>
+        <rect x="12" y="21" width="12" height="1.8" rx="0.9" fill="white"/>
+        <rect x="12" y="25" width="7" height="1.8" rx="0.9" fill="white" fill-opacity=".6"/>
+        <rect x="12" y="29" width="10" height="1.8" rx="0.9" fill="white"/>
+        <circle cx="32" cy="31" r="8" fill="#3db8c0"/>
+        <path d="M28.8 31.2l2.4 2.4 4.2-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="site-ttl">收據 OCR 讀取器 v6.4</div>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深色模式">🌙</button>
+  </div>
+
+  <div class="card">
+    <div class="sticky-settings compact-bar">
+      <div class="sticky-head compact-head">
+        <div>
+          <div class="sticky-title">快速設定</div>
+          </div>
+      </div>
+      <div class="compact-controls">
+        <div class="select-wrap">
+          <label class="opt-lbl" for="languageSelect">🌐 識別語言</label>
+          <select id="languageSelect" class="sel">
+            <option value="cht" selected>繁體中文</option>
+            <option value="jpn">日文</option>
+            <option value="chs">簡體中文</option>
+            <option value="eng">英文</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <label class="opt-lbl" for="engineSelect">⚙ OCR 引擎</label>
+          <select id="engineSelect" class="sel">
+            <option value="3" selected>引擎 3（預設）</option>
+            <option value="1">引擎 1（最穩定）</option>
+            <option value="5">引擎 5（中文優化）</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+
+    <details class="info-panel">
+      <summary>工具說明 / 速度設定 / 使用貼士</summary>
+      <div class="info-body">
+        <ul>
+          <li>• 預設使用 Engine 3，因為你最近實測覺得最快最準。</li>
+          <li>• 如果出現 e101 / timeout，可以直接按「用引擎 1 重試」。</li>
+          <li>• 圖片會自動壓縮到大約 400KB，通常上傳會更快。</li>
+          <li>• 已移除金額自動抽取，避免誤將 receipt number 當總額。</li>
+          <li>• 只保留較簡單的快速資料：店名、日期、時間、付款方式。</li>
+          <li>• 上面先揀語言同引擎，之後先影相 / 揀相，會少好多向下捲動。</li>
+        </ul>
+      </div>
+    </details>
+
+
+    <div class="pickers">
+      <label class="pick-btn secondary">🖼️ 相簿選相<input type="file" id="rfAlbum" accept="image/*"></label>
+      <label class="pick-btn">📷 相機拍攝<input type="file" id="rfCamera" accept="image/*" capture="environment"></label>
+    </div>
+
+    <div class="dz" id="dz">
+      <div class="stitle" style="margin-bottom:6px">拖放相片</div>
+      <div class="dz-hint">你亦可以直接拖放 JPG / PNG / HEIC 到呢度</div>
+    </div>
+
+    <div class="prev-row" id="prevRow">
+      <img class="prev-img" id="prevImg" src="" alt="收據預覽" width="88" height="88">
+      <div style="flex:1;min-width:0">
+        <div class="prev-name" id="prevName"></div>
+        <div class="sz-row">
+          <span class="sz sz-orig" id="szOrig"></span>
+          <span style="color:var(--fnt)">→</span>
+          <span class="sz sz-new" id="szNew" style="display:none"></span>
+        </div>
+        <div class="sz-note" id="szNote">壓縮中...</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-go" id="sb" disabled>請先選擇相片</button>
+      <button type="button" class="mini-btn" id="clearBtn">清除</button>
+    </div>
+    <div class="prog" id="prog">
+      <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+      <div class="prog-lbl" id="pl">識別中，請稍候...</div>
+    </div>
+  </div>
+
+  <div class="alert" id="errBox">
+    <div id="errTxt"></div>
+    <div id="retryWrap" style="display:none"><button class="retry-btn" id="retryBtn">↺ 用引擎 1 重試</button></div>
+  </div>
+
+  <div class="card" id="res">
+    <div class="ta-hdr">
+      <div>
+        <div class="stitle" style="margin-bottom:2px">OCR 識別文字</div>
+        <div class="help" id="taNt"></div>
+      </div>
+      <button class="copy-btn" id="cpBtn" type="button">複製全文</button>
+      <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
+      <label class="copy-btn quick-shot quick-cam" for="nextCameraInput">再影一張</label>
+      <input type="file" id="nextAlbumInput" accept="image/*" hidden>
+      <input type="file" id="nextCameraInput" accept="image/*" capture="environment" hidden>
+    </div>
+    <div class="meta-box" id="metaBox"></div>
+    <textarea class="ocr-ta" id="ocrTa" rows="10" spellcheck="false"></textarea>
+  </div>
+</div>
+<footer>Powered by <a href="https://ocr.space" target="_blank" rel="noopener noreferrer">OCR.space</a> Free API</footer>
+
+<script>
+(function(){
+  // OCR requests go through /api/ocr; never place the API key in browser code.
+  var MAX_BYTES = 400000;
+
+  var rfAlbum=document.getElementById('rfAlbum'), rfCamera=document.getElementById('rfCamera'), dz=document.getElementById('dz'), sb=document.getElementById('sb'), clearBtn=document.getElementById('clearBtn'),
+      prevRow=document.getElementById('prevRow'), prevImg=document.getElementById('prevImg'), prevName=document.getElementById('prevName'), szOrig=document.getElementById('szOrig'),
+      szNew=document.getElementById('szNew'), szNote=document.getElementById('szNote'), prog=document.getElementById('prog'), pf=document.getElementById('pf'), pl=document.getElementById('pl'),
+      errBox=document.getElementById('errBox'), errTxt=document.getElementById('errTxt'), retryWrap=document.getElementById('retryWrap'), retryBtn=document.getElementById('retryBtn'),
+      res=document.getElementById('res'), ocrTa=document.getElementById('ocrTa'), taNt=document.getElementById('taNt'), cpBtn=document.getElementById('cpBtn'), metaBox=document.getElementById('metaBox'),
+      themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput');
+
+  var blob=null, fname='receipt', lastFileUrl='', lastMeta={};
+  var langMap={jpn:'日文',cht:'繁體中文',chs:'簡體中文',eng:'英文',auto:'自動偵測'};
+  var engineMap={'1':'引擎 1','3':'引擎 3','5':'引擎 5'};
+
+  function setTheme(next){
+    document.documentElement.setAttribute('data-theme', next);
+    themeBtn.textContent = next==='dark' ? '☀️' : '🌙';
+    themeBtn.setAttribute('aria-label', next==='dark' ? '切換淺色模式' : '切換深色模式');
+  }
+  setTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  themeBtn.addEventListener('click', function(){ setTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark'); });
+
+  function fmt(b){ if(b<1024) return b+'B'; if(b<1048576) return (b/1024).toFixed(0)+'KB'; return (b/1048576).toFixed(2)+'MB'; }
+  function normSpace(s){ return (s||'').replace(/[ \t]+/g,' ').trim(); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function pad(s){ return ('0'+s).slice(-2); }
+  function copyText(t, btn, doneText){
+    if(!t) return;
+    var original=btn.textContent;
+    function flash(){ btn.textContent=doneText||'已複製'; setTimeout(function(){ btn.textContent=original; }, 1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(flash); }
+    else { ocrTa.select(); document.execCommand('copy'); flash(); }
+  }
+
+  function clearAll(){
+    blob=null; fname='receipt'; lastMeta={};
+    rfAlbum.value=''; rfCamera.value=''; res.style.display='none'; errBox.style.display='none'; prog.style.display='none';
+    prevRow.style.display='none'; prevImg.src=''; prevName.textContent=''; szOrig.textContent=''; szNew.textContent=''; szNew.style.display='none';
+    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; sb.disabled=true; sb.textContent='請先選擇相片';
+    if(lastFileUrl){ try{ URL.revokeObjectURL(lastFileUrl); }catch(e){} lastFileUrl=''; }
+  }
+
+  function compress(file, max, cb){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      URL.revokeObjectURL(url);
+      var w=img.width, h=img.height, lim=1700;
+      if(w>lim||h>lim){ var r=Math.min(lim/w, lim/h); w=Math.round(w*r); h=Math.round(h*r); }
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d', {alpha:false}).drawImage(img,0,0,w,h);
+      tryQ(cv,w,h,0.84,max,0,cb);
+    };
+    img.onerror=function(){ cb(null,'圖片讀取失敗'); };
+    img.src=url;
+  }
+
+  function tryQ(cv,w,h,q,max,n,cb){
+    cv.toBlob(function(b){
+      if(!b){ cb(null,'壓縮失敗'); return; }
+      if(b.size<=max || q<=0.18){ cb(b,null); return; }
+      if(n<8){ tryQ(cv,w,h,q-0.09,max,n+1,cb); return; }
+      var nw=Math.max(900, Math.round(w*0.76)), nh=Math.max(900, Math.round(h*0.76));
+      var c2=document.createElement('canvas'); c2.width=nw; c2.height=nh; c2.getContext('2d', {alpha:false}).drawImage(cv,0,0,nw,nh);
+      tryQ(c2,nw,nh,0.8,max,0,cb);
+    }, 'image/jpeg', q);
+  }
+
+  function handleFile(file, autoScan){
+    if(!file || !file.type.match(/^image\//)) return;
+    errBox.style.display='none'; res.style.display='none';
+    fname=(file.name||'receipt').replace(/\.[^.]+$/,'')||'receipt';
+    prevName.textContent=file.name||'receipt.jpg';
+    szOrig.textContent='原始: '+fmt(file.size);
+    szNew.style.display='none'; szNote.textContent='壓縮中...'; sb.disabled=true; sb.textContent='壓縮中...'; blob=null;
+    if(lastFileUrl){ try{ URL.revokeObjectURL(lastFileUrl); }catch(e){} }
+    lastFileUrl=URL.createObjectURL(file); prevImg.src=lastFileUrl; prevRow.style.display='flex';
+    compress(file, MAX_BYTES, function(b, err){
+      if(err || !b){ showErr('壓縮出錯，請換另一張相片重試。', false); sb.disabled=true; sb.textContent='請先選擇相片'; return; }
+      blob=b; szNew.style.display='inline'; szNew.textContent='壓縮後: '+fmt(b.size);
+      szNote.textContent = b.size < file.size ? '已壓縮 '+Math.round((1-b.size/file.size)*100)+'%，可以開始識別' : '相片已適合直接識別';
+      sb.disabled=false; sb.textContent='🔍 開始識別';
+      if(autoScan){ setTimeout(function(){ doOCR(null); }, 120); }
+    });
+  }
+
+  function showErr(msg, showRetry){
+    errTxt.textContent=msg; retryWrap.style.display = showRetry ? 'block' : 'none'; errBox.style.display='block';
+    errBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function extractDate(line){
+    var m=line.match(/(20\d{2})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/); if(m) return m[1]+'/'+pad(m[2])+'/'+pad(m[3]);
+    m=line.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](20\d{2}|\d{2})/); if(m){ var yy=String(m[3]).length===2 ? '20'+m[3] : m[3]; return yy+'/'+pad(m[1])+'/'+pad(m[2]); }
+    return '';
+  }
+
+  function findStore(lines){
+    var bad=/^(tel|〒|receipt|invoice|date|time|table|cashier|reg|no\.?|#|total|subtotal|tax|cash|visa|master|card|change|amount)/i;
+    for(var i=0;i<Math.min(lines.length,8);i++){
+      var s=normSpace(lines[i]).replace(/^[\*\-\s]+/, '');
+      if(!s || bad.test(s)) continue;
+      if(/[\d]{5,}/.test(s) && s.length<10) continue;
+      if(/^[-\d\s:/.]+$/.test(s)) continue;
+      if(s.length>=2) return s;
+    }
+    return '';
+  }
+
+  function findPayment(text){
+    var map=[['現金|cash','現金'],['visa','VISA'],['master|mastercard','Mastercard'],['amex','AMEX'],['jcb','JCB'],['unionpay|銀聯','銀聯'],['八達通|octopus','八達通'],['wechat|微信','WeChat Pay'],['alipay|支付寶','Alipay'],['payme','PayMe'],['apple\\s*pay','Apple Pay'],['google\\s*pay','Google Pay']];
+    for(var i=0;i<map.length;i++){ if(new RegExp(map[i][0], 'i').test(text)) return map[i][1]; }
+    return '';
+  }
+
+  function extractMeta(text){
+    var lines=text.split(/\r\n|\r|\n/).map(normSpace).filter(Boolean), whole=lines.join('\n'), out={};
+    out.store=findStore(lines);
+    for(var i=0;i<lines.length;i++){
+      if(!out.date){ var d=extractDate(lines[i]); if(d) out.date=d; }
+      if(!out.time){ var tm=lines[i].match(/(\d{1,2}:\d{2})(?::\d{2})?/); if(tm) out.time=tm[1]; }
+    }
+    out.payment=findPayment(whole);
+    return out;
+  }
+
+  function renderMeta(meta){
+    metaBox.innerHTML='';
+    var labels={store:'店名',date:'日期',time:'時間',payment:'付款方式'};
+    var order=['store','date','time','payment'];
+    var has=false;
+    order.forEach(function(k){
+      if(!meta[k]) return; has=true;
+      var el=document.createElement('div');
+      el.className='meta-chip';
+      el.innerHTML='<b>'+labels[k]+'</b> '+esc(meta[k]);
+      metaBox.appendChild(el);
+    });
+    metaBox.style.display = has ? 'flex' : 'none';
+  }
+
+
+  function blobToDataUrl(inputBlob){
+    return new Promise(function(resolve, reject){
+      var reader=new FileReader();
+      reader.onload=function(){ resolve(reader.result); };
+      reader.onerror=function(){ reject(new Error('無法讀取圖片，請重新選擇。')); };
+      reader.readAsDataURL(inputBlob);
+    });
+  }
+
+  function doOCR(forceEngine){
+    if(!blob){ showErr('請先選擇相片。', false); return; }
+    var engine=forceEngine || engineSelect.value || '3';
+    var langVal=languageSelect.value || 'cht';
+    var useLang=(engine==='3') ? 'auto' : langVal;
+
+    errBox.style.display='none'; res.style.display='none'; prog.style.display='block'; sb.disabled=true; sb.textContent='識別中...';
+    pf.style.width='12%'; pl.textContent='正在上傳及識別...';
+    var pct=12; var iv=setInterval(function(){ pct=Math.min(pct + (Math.random()*9), 84); pf.style.width=pct+'%'; }, 260);
+
+    blobToDataUrl(blob)
+      .then(function(dataUrl){
+        return fetch('/api/ocr', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            image:dataUrl,
+            language:useLang,
+            engine:engine
+          })
+        });
+      })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        clearInterval(iv); pf.style.width='100%'; pl.textContent='完成！'; setTimeout(function(){ prog.style.display='none'; }, 260);
+        sb.disabled=false; sb.textContent='🔍 再次識別';
+        if(d && d.ParsedResults && d.ParsedResults[0] && d.ParsedResults[0].ParsedText){
+          showRes(d.ParsedResults[0].ParsedText, langVal, engine);
+        }else if(d && (d.ErrorMessage || d.error)){
+          var rawMsg=d.ErrorMessage || d.error;
+          var msg=Array.isArray(rawMsg) ? rawMsg.join(' ') : rawMsg;
+          var isTimeout=/e101|timed out|timeout/i.test(msg);
+          showErr('API 錯誤: '+msg, isTimeout && engine!=='1');
+        }else{ showErr('無法解析回應，請重試。', false); }
+      })
+      .catch(function(e){ clearInterval(iv); prog.style.display='none'; sb.disabled=false; sb.textContent='🔍 再次識別'; showErr('網絡錯誤: '+e.message, false); });
+  }
+
+  function showRes(text, lang, engine){
+    lastMeta=extractMeta(text);
+    taNt.textContent='語言: '+(langMap[lang]||lang)+' ｜ 使用: '+(engineMap[engine]||engine)+' ｜ Engine 3 會以 auto 模式送出辨識';
+    renderMeta(lastMeta);
+    ocrTa.value=text;
+    res.style.display='block';
+    res.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  rfAlbum.addEventListener('change', function(){ if(rfAlbum.files && rfAlbum.files[0]) handleFile(rfAlbum.files[0], false); });
+  rfCamera.addEventListener('change', function(){ if(rfCamera.files && rfCamera.files[0]) handleFile(rfCamera.files[0], false); });
+  nextAlbumInput.addEventListener('change', function(){ if(nextAlbumInput.files && nextAlbumInput.files[0]) handleFile(nextAlbumInput.files[0], true); nextAlbumInput.value=''; });
+  nextCameraInput.addEventListener('change', function(){ if(nextCameraInput.files && nextCameraInput.files[0]) handleFile(nextCameraInput.files[0], true); nextCameraInput.value=''; });
+  dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', function(){ dz.classList.remove('over'); });
+  dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('over'); var f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) handleFile(f, false); });
+  sb.addEventListener('click', function(){ doOCR(null); });
+  clearBtn.addEventListener('click', clearAll);
+  window.addEventListener('scroll', function(){ document.body.classList.toggle('is-scrolled', window.scrollY > 10); }, {passive:true});
+  retryBtn.addEventListener('click', function(){ engineSelect.value='1'; doOCR('1'); });
+  cpBtn.addEventListener('click', function(){ copyText(ocrTa.value, cpBtn, '✅ 已複製'); });
+})();
+</script>
+</body>
+</html>
+
+
