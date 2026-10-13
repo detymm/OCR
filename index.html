@@ -358,7 +358,16 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
           })
         });
       })
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(d){
+          if(!r.ok){
+            var detail = d && (d.error || d.message || d.ErrorMessage);
+            if(Array.isArray(detail)) detail = detail.join(' ');
+            throw new Error(detail ? ('HTTP '+r.status+'：'+detail) : ('HTTP '+r.status+'，伺服器未提供詳細錯誤。請到 Vercel → Deployments → Functions Logs 查看。'));
+          }
+          return d;
+        });
+      })
       .then(function(d){
         clearInterval(iv); pf.style.width='100%'; pl.textContent='完成！'; setTimeout(function(){ prog.style.display='none'; }, 260);
         sb.disabled=false; sb.textContent='🔍 再次識別';

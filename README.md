@@ -14,3 +14,12 @@ This project turns the original PHP-wrapped static page into `index.html` and mo
 - The browser sends the compressed image to `/api/ocr`; the function forwards it to OCR.space.
 - This hides the key from page source, but the endpoint is public and can still be abused. Before sharing widely, add rate limiting or authentication and review OCR.space plan limits.
 - Never commit a real `.env` file or API key to GitHub.
+
+
+## Troubleshooting: HTTP 500 when clicking OCR
+- First check Vercel → Project → Settings → Environment Variables. The variable name must be exactly `OCR_SPACE_API_KEY` (not `OCR_SPACE_KEY`, `apikey`, or a value pasted into the code). Set it for **Production**; also set Preview if testing a Preview deployment.
+- After adding/changing the variable, trigger a **new deployment**. Environment-variable changes do not update an already-built deployment.
+- This version displays the JSON error returned by `/api/ocr` instead of only showing `HTTP 500`.
+- In Vercel → Deployments → select the active deployment → Functions / Runtime Logs, open the `/api/ocr` invocation and check its error. Do not share API keys or screenshots that expose them.
+- If the response says `Server OCR key is not configured.`, the variable is missing, misspelled, scoped to the wrong environment, or the site has not been redeployed.
+- If the function returns an OCR.space error after the key is configured, verify the new key is valid and has remaining API quota.
