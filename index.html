@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google" content="notranslate">
 <title>收據 OCR 讀取器 v6.5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,6 +69,7 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .entry-in{grid-area:val;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--bdr);background:var(--sur);padding:10px 12px;font-family:var(--jp);font-size:1.125rem;font-weight:700;line-height:1.35;outline:none}
 .entry-in::placeholder{color:var(--fnt);font-weight:600}.entry-in:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(10,107,114,.12)}
 .entry-amt{font-size:1.45rem;font-weight:800;letter-spacing:.01em}
+.entry-amt::placeholder{font-size:1rem;font-weight:600}
 .entry-note{min-height:72px;resize:vertical;font-size:1rem;font-weight:600}
 .entry-copy{grid-area:btn;min-height:48px;min-width:6.75rem;padding:10px 12px;font-size:.92rem;font-weight:800;white-space:nowrap}
 .entry-row-note .entry-copy{height:auto}
@@ -190,7 +192,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       <div class="entry-grid">
         <div class="entry-row">
           <label class="entry-lbl" for="amtIn">總額 <span class="entry-hint">手填</span></label>
-          <input class="entry-in entry-amt" id="amtIn" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 128.50" enterkeyhint="done">
+          <input class="entry-in entry-amt" id="amtIn" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="請輸入總額" enterkeyhint="done">
           <button class="copy-btn entry-copy" id="copyAmt" type="button" data-label="複製" aria-label="複製總額">複製</button>
         </div>
         <div class="entry-row">
