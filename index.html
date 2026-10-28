@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>收據 OCR 讀取器 v6.4</title>
+<title>收據 OCR 讀取器 v6.5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -57,7 +57,21 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .alert{display:none;border-radius:12px;padding:12px 14px;font-size:.92rem;border:1px solid rgba(157,45,45,.18);background:var(--errbg);color:var(--err);margin-bottom:10px}.retry-btn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;color:var(--pri);font-weight:800;border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur)}
 #res{display:none}.meta-box{display:none;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.meta-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--sur2);border:1px solid var(--bdr);font-size:.8rem;color:var(--mut)}.meta-chip b{color:var(--txt)}
 .ta-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px}.help{font-size:.82rem;color:var(--mut)}
-.copy-btn{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.quick-shot{cursor:pointer}.quick-cam{background:var(--pri3)}
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.copy-btn.is-copied{background:var(--okbg);color:var(--ok);border-color:transparent}.quick-shot{cursor:pointer}.quick-cam{background:var(--pri3)}
+.entry-helper{border:1px solid var(--bdr);border-radius:14px;background:var(--pri3);padding:12px;margin-bottom:12px}
+.entry-head{margin-bottom:10px}.entry-head .help{margin-top:2px}
+.entry-grid{display:grid;gap:10px}
+.entry-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lbl lbl" "val btn";gap:6px 8px;align-items:center}
+.entry-row-note{align-items:stretch}
+.entry-lbl{grid-area:lbl;font-size:.78rem;font-weight:800;letter-spacing:.04em;color:var(--mut)}
+.entry-hint{display:inline-flex;align-items:center;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--sur);border:1px solid var(--bdr);color:var(--pri);font-size:.68rem;letter-spacing:0;vertical-align:1px}
+.entry-in{grid-area:val;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--bdr);background:var(--sur);padding:10px 12px;font-family:var(--jp);font-size:1.125rem;font-weight:700;line-height:1.35;outline:none}
+.entry-in::placeholder{color:var(--fnt);font-weight:600}.entry-in:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(10,107,114,.12)}
+.entry-amt{font-size:1.45rem;font-weight:800;letter-spacing:.01em}
+.entry-note{min-height:72px;resize:vertical;font-size:1rem;font-weight:600}
+.entry-copy{grid-area:btn;min-height:48px;min-width:6.75rem;padding:10px 12px;font-size:.92rem;font-weight:800;white-space:nowrap}
+.entry-row-note .entry-copy{height:auto}
+.entry-copy:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
 .ocr-ta{width:100%;min-height:190px;max-height:58dvh;resize:vertical;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);outline:none}.ocr-ta:focus{border-color:var(--pri)}
 footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}footer a{color:var(--pri);text-decoration:none}
 </style>
@@ -78,7 +92,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <path d="M28.8 31.2l2.4 2.4 4.2-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div>
-        <div class="site-ttl">收據 OCR 讀取器 v6.4</div>
+        <div class="site-ttl">收據 OCR 讀取器 v6.5</div>
       </div>
     </div>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深色模式">🌙</button>
@@ -121,6 +135,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
           <li>• 如果出現 e101 / timeout，可以直接按「用引擎 1 重試」。</li>
           <li>• 圖片會自動壓縮到大約 400KB，通常上傳會更快。</li>
           <li>• 已移除金額自動抽取，避免誤將 receipt number 當總額。</li>
+          <li>• 識別完成後，用「記帳複製」手填總額，再逐項複製商戶、日期、備註去記帳 app。</li>
           <li>• 只保留較簡單的快速資料：店名、日期、時間、付款方式。</li>
           <li>• 上面先揀語言同引擎，之後先影相 / 揀相，會少好多向下捲動。</li>
         </ul>
@@ -167,12 +182,40 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   </div>
 
   <div class="card" id="res">
+    <section class="entry-helper" id="entryHelper" aria-label="記帳複製">
+      <div class="entry-head">
+        <div class="stitle" style="margin-bottom:2px">記帳複製</div>
+        <div class="help">逐項複製去 Money Manager。總額要自己確認，系統唔會由收據自動填。</div>
+      </div>
+      <div class="entry-grid">
+        <div class="entry-row">
+          <label class="entry-lbl" for="amtIn">總額 <span class="entry-hint">手填</span></label>
+          <input class="entry-in entry-amt" id="amtIn" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 128.50" enterkeyhint="done">
+          <button class="copy-btn entry-copy" id="copyAmt" type="button" data-label="複製" aria-label="複製總額">複製</button>
+        </div>
+        <div class="entry-row">
+          <label class="entry-lbl" for="storeIn">商戶</label>
+          <input class="entry-in" id="storeIn" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="店名" enterkeyhint="done">
+          <button class="copy-btn entry-copy" id="copyStore" type="button" data-label="複製" aria-label="複製商戶">複製</button>
+        </div>
+        <div class="entry-row">
+          <label class="entry-lbl" for="dateIn">日期</label>
+          <input class="entry-in" id="dateIn" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="YYYY/MM/DD" enterkeyhint="done">
+          <button class="copy-btn entry-copy" id="copyDate" type="button" data-label="複製" aria-label="複製日期">複製</button>
+        </div>
+        <div class="entry-row entry-row-note">
+          <label class="entry-lbl" for="noteIn">備註</label>
+          <textarea class="entry-in entry-note" id="noteIn" rows="2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="可改完先複製" enterkeyhint="done"></textarea>
+          <button class="copy-btn entry-copy" id="copyNote" type="button" data-label="複製" aria-label="複製備註">複製</button>
+        </div>
+      </div>
+    </section>
     <div class="ta-hdr">
       <div>
         <div class="stitle" style="margin-bottom:2px">OCR 識別文字</div>
         <div class="help" id="taNt"></div>
       </div>
-      <button class="copy-btn" id="cpBtn" type="button">複製全文</button>
+      <button class="copy-btn" id="cpBtn" type="button" data-label="複製全文">複製全文</button>
       <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
       <label class="copy-btn quick-shot quick-cam" for="nextCameraInput">再影一張</label>
       <input type="file" id="nextAlbumInput" accept="image/*" hidden>
@@ -194,9 +237,11 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       szNew=document.getElementById('szNew'), szNote=document.getElementById('szNote'), prog=document.getElementById('prog'), pf=document.getElementById('pf'), pl=document.getElementById('pl'),
       errBox=document.getElementById('errBox'), errTxt=document.getElementById('errTxt'), retryWrap=document.getElementById('retryWrap'), retryBtn=document.getElementById('retryBtn'),
       res=document.getElementById('res'), ocrTa=document.getElementById('ocrTa'), taNt=document.getElementById('taNt'), cpBtn=document.getElementById('cpBtn'), metaBox=document.getElementById('metaBox'),
-      themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput');
+      themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput'),
+      amtIn=document.getElementById('amtIn'), storeIn=document.getElementById('storeIn'), dateIn=document.getElementById('dateIn'), noteIn=document.getElementById('noteIn'),
+      copyAmt=document.getElementById('copyAmt'), copyStore=document.getElementById('copyStore'), copyDate=document.getElementById('copyDate'), copyNote=document.getElementById('copyNote');
 
-  var blob=null, fname='receipt', lastFileUrl='', lastMeta={};
+  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, noteTouched=false;
   var langMap={jpn:'日文',cht:'繁體中文',chs:'簡體中文',eng:'英文',auto:'自動偵測'};
   var engineMap={'1':'引擎 1','3':'引擎 3','5':'引擎 5'};
 
@@ -213,18 +258,80 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function pad(s){ return ('0'+s).slice(-2); }
   function copyText(t, btn, doneText){
-    if(!t) return;
-    var original=btn.textContent;
-    function flash(){ btn.textContent=doneText||'已複製'; setTimeout(function(){ btn.textContent=original; }, 1800); }
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(flash); }
-    else { ocrTa.select(); document.execCommand('copy'); flash(); }
+    var label=btn.getAttribute('data-label') || btn.textContent;
+    function flash(msg, ok){
+      btn.textContent=msg;
+      btn.classList.toggle('is-copied', !!ok);
+      setTimeout(function(){ btn.textContent=label; btn.classList.remove('is-copied'); }, 1800);
+    }
+    if(!t){ flash('未填', false); return; }
+    function fallback(){
+      var ta=document.createElement('textarea');
+      ta.value=t;
+      ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok=false;
+      try{ ok=document.execCommand('copy'); }catch(e){ ok=false; }
+      document.body.removeChild(ta);
+      flash(ok ? (doneText||'已複製') : '複製失敗', ok);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ flash(doneText||'已複製', true); }).catch(fallback);
+    } else fallback();
+  }
+
+  function clipText(s, n){
+    s=normSpace(s);
+    if(!s || s.length<=n) return s;
+    return s.slice(0, n).replace(/[\s|｜·,，、]+$/,'')+'…';
+  }
+
+  function buildNote(meta, text){
+    var store=normSpace(meta && meta.store), date=normSpace(meta && meta.date), time=normSpace(meta && meta.time);
+    var when=date ? (time ? date+' '+time : date) : '';
+    var head=[store, when].filter(Boolean).join(' · ');
+    if(head) return clipText(head, 80);
+    return clipText(String(text||'').replace(/[\r\n]+/g,' '), 80);
+  }
+
+  function refreshNote(){
+    if(noteTouched) return;
+    noteIn.value=buildNote({store:storeIn.value, date:dateIn.value, time:lastMeta.time}, ocrTa.value);
+  }
+
+  function resetCopyButtons(){
+    [cpBtn, copyAmt, copyStore, copyDate, copyNote].forEach(function(btn){
+      if(!btn) return;
+      var label=btn.getAttribute('data-label');
+      if(label) btn.textContent=label;
+      btn.classList.remove('is-copied');
+    });
+  }
+
+  function seedEntry(meta, text){
+    // Amount stays blank on purpose: never parse a total out of OCR text.
+    noteTouched=false;
+    resetCopyButtons();
+    amtIn.value='';
+    storeIn.value=(meta && meta.store) || '';
+    dateIn.value=(meta && meta.date) || '';
+    noteIn.value=buildNote({store:storeIn.value, date:dateIn.value, time:meta && meta.time}, text||'');
+  }
+
+  function resetEntry(){
+    noteTouched=true;
+    resetCopyButtons();
+    amtIn.value=''; storeIn.value=''; dateIn.value=''; noteIn.value='';
+    noteTouched=false;
   }
 
   function clearAll(){
     blob=null; fname='receipt'; lastMeta={};
     rfAlbum.value=''; rfCamera.value=''; res.style.display='none'; errBox.style.display='none'; prog.style.display='none';
     prevRow.style.display='none'; prevImg.src=''; prevName.textContent=''; szOrig.textContent=''; szNew.textContent=''; szNew.style.display='none';
-    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; sb.disabled=true; sb.textContent='請先選擇相片';
+    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; resetEntry(); sb.disabled=true; sb.textContent='請先選擇相片';
     if(lastFileUrl){ try{ URL.revokeObjectURL(lastFileUrl); }catch(e){} lastFileUrl=''; }
   }
 
@@ -388,6 +495,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     taNt.textContent='語言: '+(langMap[lang]||lang)+' ｜ 使用: '+(engineMap[engine]||engine)+' ｜ Engine 3 會以 auto 模式送出辨識';
     renderMeta(lastMeta);
     ocrTa.value=text;
+    seedEntry(lastMeta, text);
     res.style.display='block';
     res.scrollIntoView({behavior:'smooth', block:'start'});
   }
@@ -404,6 +512,14 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   window.addEventListener('scroll', function(){ document.body.classList.toggle('is-scrolled', window.scrollY > 10); }, {passive:true});
   retryBtn.addEventListener('click', function(){ engineSelect.value='1'; doOCR('1'); });
   cpBtn.addEventListener('click', function(){ copyText(ocrTa.value, cpBtn, '✅ 已複製'); });
+  copyAmt.addEventListener('click', function(){ copyText(amtIn.value.trim(), copyAmt, '✅ 已複製'); });
+  copyStore.addEventListener('click', function(){ copyText(storeIn.value.trim(), copyStore, '✅ 已複製'); });
+  copyDate.addEventListener('click', function(){ copyText(dateIn.value.trim(), copyDate, '✅ 已複製'); });
+  copyNote.addEventListener('click', function(){ copyText(noteIn.value.trim(), copyNote, '✅ 已複製'); });
+  storeIn.addEventListener('input', refreshNote);
+  dateIn.addEventListener('input', refreshNote);
+  noteIn.addEventListener('input', function(){ noteTouched=true; });
+  ocrTa.addEventListener('input', refreshNote);
 })();
 </script>
 </body>
