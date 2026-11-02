@@ -75,6 +75,18 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .entry-row-note .entry-copy{height:auto}
 .entry-copy:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
 .ocr-ta{width:100%;min-height:190px;max-height:58dvh;resize:vertical;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);outline:none}.ocr-ta:focus{border-color:var(--pri)}
+.md-toggle{min-height:44px}
+.md-preview{min-height:190px;max-height:58dvh;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);overflow-wrap:anywhere}
+.md-preview[hidden],.ocr-ta[hidden]{display:none !important}
+.md-preview h1,.md-preview h2,.md-preview h3{font-weight:800;line-height:1.35;margin:.15em 0 .4em}
+.md-preview h1{font-size:1.25rem}.md-preview h2{font-size:1.1rem}.md-preview h3{font-size:1rem}
+.md-preview p{margin:0 0 .7em}.md-preview p:last-child,.md-preview ul:last-child,.md-preview ol:last-child,.md-preview pre:last-child,.md-preview blockquote:last-child{margin-bottom:0}
+.md-preview ul,.md-preview ol{margin:0 0 .7em;padding-left:1.25em}.md-preview li{margin:.12em 0}
+.md-preview pre{margin:0 0 .7em;padding:8px 10px;border-radius:8px;background:var(--sur3);overflow:auto}
+.md-preview code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
+.md-preview a{color:var(--pri)}
+.md-preview blockquote{margin:0 0 .7em;padding-left:10px;border-left:3px solid var(--pri);color:var(--mut)}
+.md-preview strong{font-weight:800}.md-empty{color:var(--mut)}
 footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}footer a{color:var(--pri);text-decoration:none}
 </style>
 </head>
@@ -217,6 +229,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <div class="stitle" style="margin-bottom:2px">OCR 識別文字</div>
         <div class="help" id="taNt"></div>
       </div>
+      <button class="copy-btn md-toggle" id="mdBtn" type="button" aria-pressed="false" aria-controls="mdPreview">Markdown 預覽</button>
       <button class="copy-btn" id="cpBtn" type="button" data-label="複製全文">複製全文</button>
       <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
       <label class="copy-btn quick-shot quick-cam" for="nextCameraInput">再影一張</label>
@@ -225,6 +238,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     </div>
     <div class="meta-box" id="metaBox"></div>
     <textarea class="ocr-ta" id="ocrTa" rows="10" spellcheck="false"></textarea>
+    <div class="md-preview" id="mdPreview" hidden></div>
   </div>
 </div>
 <footer>Powered by <a href="https://ocr.space" target="_blank" rel="noopener noreferrer">OCR.space</a> Vibe Coding by Me.</footer>
@@ -241,9 +255,10 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       res=document.getElementById('res'), ocrTa=document.getElementById('ocrTa'), taNt=document.getElementById('taNt'), cpBtn=document.getElementById('cpBtn'), metaBox=document.getElementById('metaBox'),
       themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput'),
       amtIn=document.getElementById('amtIn'), storeIn=document.getElementById('storeIn'), dateIn=document.getElementById('dateIn'), noteIn=document.getElementById('noteIn'),
-      copyAmt=document.getElementById('copyAmt'), copyStore=document.getElementById('copyStore'), copyDate=document.getElementById('copyDate'), copyNote=document.getElementById('copyNote');
+      copyAmt=document.getElementById('copyAmt'), copyStore=document.getElementById('copyStore'), copyDate=document.getElementById('copyDate'), copyNote=document.getElementById('copyNote'),
+      mdBtn=document.getElementById('mdBtn'), mdPreview=document.getElementById('mdPreview');
 
-  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, noteTouched=false;
+  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, noteTouched=false, mdOn=false;
   var langMap={jpn:'日文',cht:'繁體中文',chs:'簡體中文',eng:'英文',auto:'自動偵測'};
   var engineMap={'1':'引擎 1','3':'引擎 3','5':'引擎 5'};
 
@@ -333,7 +348,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     blob=null; fname='receipt'; lastMeta={};
     rfAlbum.value=''; rfCamera.value=''; res.style.display='none'; errBox.style.display='none'; prog.style.display='none';
     prevRow.style.display='none'; prevImg.src=''; prevName.textContent=''; szOrig.textContent=''; szNew.textContent=''; szNew.style.display='none';
-    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; resetEntry(); sb.disabled=true; sb.textContent='請先選擇相片';
+    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; resetEntry(); setMdPreview(false); sb.disabled=true; sb.textContent='請先選擇相片';
     if(lastFileUrl){ try{ URL.revokeObjectURL(lastFileUrl); }catch(e){} lastFileUrl=''; }
   }
 
@@ -498,6 +513,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     renderMeta(lastMeta);
     ocrTa.value=text;
     seedEntry(lastMeta, text);
+    setMdPreview(false);
     res.style.display='block';
     res.scrollIntoView({behavior:'smooth', block:'start'});
   }
@@ -513,7 +529,155 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   clearBtn.addEventListener('click', clearAll);
   window.addEventListener('scroll', function(){ document.body.classList.toggle('is-scrolled', window.scrollY > 10); }, {passive:true});
   retryBtn.addEventListener('click', function(){ engineSelect.value='1'; doOCR('1'); });
+  function escHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function safeHref(url){
+    var u=String(url||'').replace(/^\s+|\s+$/g,'');
+    if(!/^(https?:\/\/|mailto:)/i.test(u)) return '';
+    if(/[\u0000-\u001F\u007F<>"'`]/.test(u)) return '';
+    return u;
+  }
+
+  function takeDelimited(s, i, open, close){
+    if(s.slice(i, i+open.length)!==open) return null;
+    var start=i+open.length, end=s.indexOf(close, start);
+    if(end<=start) return null;
+    var inner=s.slice(start, end);
+    if(inner.indexOf('\n')!==-1 || !inner.replace(/^\s+|\s+$/g,'')) return null;
+    return {inner:inner, next:end+close.length};
+  }
+
+  function inlineMd(raw, depth){
+    var s=String(raw), out='', i=0, n, bold, ital, ticks, close, lb, rb, label, href;
+    if((depth||0)>6) return escHtml(s);
+    while(i<s.length){
+      if(s.charAt(i)==='`'){
+        ticks=1;
+        while(s.charAt(i+ticks)==='`') ticks++;
+        close=s.indexOf(new Array(ticks+1).join('`'), i+ticks);
+        if(close>i+ticks){
+          out+='<code>'+escHtml(s.slice(i+ticks, close))+'</code>';
+          i=close+ticks;
+          continue;
+        }
+      }
+      if(s.charAt(i)==='['){
+        lb=s.indexOf(']', i+1);
+        if(lb>i+1 && s.charAt(lb+1)==='('){
+          rb=s.indexOf(')', lb+2);
+          if(rb>lb+2 && s.slice(i, rb+1).indexOf('\n')===-1){
+            label=s.slice(i+1, lb);
+            href=safeHref(s.slice(lb+2, rb));
+            if(href && label && label.indexOf('[')===-1){
+              out+='<a href="'+escHtml(href)+'" target="_blank" rel="noopener noreferrer">'+inlineMd(label, (depth||0)+1)+'</a>';
+              i=rb+1;
+              continue;
+            }
+          }
+        }
+      }
+      bold=null;
+      if(s.slice(i, i+2)==='**') bold=takeDelimited(s, i, '**', '**');
+      else if(s.slice(i, i+2)==='__') bold=takeDelimited(s, i, '__', '__');
+      if(bold){
+        out+='<strong>'+inlineMd(bold.inner, (depth||0)+1)+'</strong>';
+        i=bold.next;
+        continue;
+      }
+      ital=null;
+      if(s.charAt(i)==='*' && s.charAt(i+1)!=='*') ital=takeDelimited(s, i, '*', '*');
+      else if(s.charAt(i)==='_' && s.charAt(i+1)!=='_' && (i===0 || /[\s(\[]/.test(s.charAt(i-1)))) ital=takeDelimited(s, i, '_', '_');
+      if(ital){
+        out+='<em>'+inlineMd(ital.inner, (depth||0)+1)+'</em>';
+        i=ital.next;
+        continue;
+      }
+      n=1;
+      while(i+n<s.length && '`[*_'.indexOf(s.charAt(i+n))===-1) n++;
+      out+=escHtml(s.slice(i, i+n));
+      i+=n;
+    }
+    return out;
+  }
+
+  function renderMarkdown(src){
+    var lines=String(src||'').replace(/\r\n?/g,'\n').split('\n');
+    var html='', para=[], i=0, line, heading, quote, items, ordered, tag, code;
+    var ulRe=/^[-*]\s+(\S.*)$/, olRe=/^\d+\.\s+(\S.*)$/;
+    function pushPara(){
+      if(!para.length) return;
+      html+='<p>'+para.map(function(part){ return inlineMd(part, 0); }).join('<br>')+'</p>';
+      para=[];
+    }
+    while(i<lines.length){
+      line=lines[i];
+      if(/^```/.test(line)){
+        pushPara();
+        code=[];
+        i++;
+        while(i<lines.length && !/^```/.test(lines[i])){ code.push(lines[i]); i++; }
+        if(i<lines.length) i++;
+        html+='<pre><code>'+escHtml(code.join('\n'))+'</code></pre>';
+        continue;
+      }
+      if(!String(line).trim()){ pushPara(); i++; continue; }
+      heading=line.match(/^(#{1,3})\s+(\S.*)$/);
+      if(heading){
+        pushPara();
+        html+='<h'+heading[1].length+'>'+inlineMd(heading[2], 0)+'</h'+heading[1].length+'>';
+        i++;
+        continue;
+      }
+      if(/^>\s?/.test(line)){
+        pushPara();
+        quote=[];
+        while(i<lines.length && /^>\s?/.test(lines[i])){
+          quote.push(lines[i].replace(/^>\s?/, ''));
+          i++;
+        }
+        html+='<blockquote><p>'+quote.map(function(part){ return inlineMd(part, 0); }).join('<br>')+'</p></blockquote>';
+        continue;
+      }
+      if(ulRe.test(line) || olRe.test(line)){
+        pushPara();
+        ordered=olRe.test(line);
+        items=[];
+        while(i<lines.length && (ordered ? olRe.test(lines[i]) : ulRe.test(lines[i]))){
+          items.push((lines[i].match(ordered ? olRe : ulRe)||['',''])[1]);
+          i++;
+        }
+        tag=ordered ? 'ol' : 'ul';
+        html+='<'+tag+'>'+items.map(function(item){ return '<li>'+inlineMd(item, 0)+'</li>'; }).join('')+'</'+tag+'>';
+        continue;
+      }
+      para.push(line);
+      i++;
+    }
+    pushPara();
+    return html || '<p class="md-empty">沒有文字</p>';
+  }
+
+  function setMdPreview(on){
+    mdOn=!!on;
+    if(mdOn){
+      mdPreview.innerHTML=renderMarkdown(ocrTa.value);
+      mdPreview.hidden=false;
+      ocrTa.hidden=true;
+    }else{
+      mdPreview.hidden=true;
+      mdPreview.innerHTML='';
+      ocrTa.hidden=false;
+    }
+    mdBtn.textContent=mdOn ? '顯示原文' : 'Markdown 預覽';
+    mdBtn.setAttribute('aria-pressed', mdOn ? 'true' : 'false');
+  }
+
   cpBtn.addEventListener('click', function(){ copyText(ocrTa.value, cpBtn, '✅ 已複製'); });
+  mdBtn.addEventListener('click', function(){ setMdPreview(!mdOn); });
   copyAmt.addEventListener('click', function(){ copyText(amtIn.value.trim(), copyAmt, '✅ 已複製'); });
   copyStore.addEventListener('click', function(){ copyText(storeIn.value.trim(), copyStore, '✅ 已複製'); });
   copyDate.addEventListener('click', function(){ copyText(dateIn.value.trim(), copyDate, '✅ 已複製'); });
