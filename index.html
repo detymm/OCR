@@ -223,7 +223,8 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     themeBtn.textContent = next==='dark' ? '☀️' : '🌙';
     themeBtn.setAttribute('aria-label', next==='dark' ? '切換淺色模式' : '切換深色模式');
   }
-  setTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  // Fresh loads stay light even when the OS prefers dark. The toggle still switches for this session.
+  setTheme('light');
   themeBtn.addEventListener('click', function(){ setTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark'); });
 
   function fmt(b){ if(b<1024) return b+'B'; if(b<1048576) return (b/1024).toFixed(0)+'KB'; return (b/1048576).toFixed(2)+'MB'; }
