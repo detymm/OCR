@@ -1,0 +1,11 @@
+{
+  "name": "receipt-ocr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@vercel/functions": "3.11.1"
+  }
+}
