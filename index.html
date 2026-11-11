@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google" content="notranslate">
-<title>收據 OCR 讀取器 v6.6</title>
+<title>收據 OCR 讀取器 v6.7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -72,6 +72,14 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .md-preview a{color:var(--pri)}
 .md-preview blockquote{margin:0 0 .7em;padding-left:10px;border-left:3px solid var(--pri);color:var(--mut)}
 .md-preview strong{font-weight:800}.md-empty{color:var(--mut)}
+.share-lead{color:var(--txt);font-size:.92rem;margin-bottom:8px}
+.share-steps{margin:0 0 10px;padding-left:1.25em}
+.share-steps li{font-size:.86rem;color:var(--txt);margin:0 0 6px}
+.share-url{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.75rem;line-height:1.45;word-break:break-all;user-select:all;-webkit-user-select:all;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin:4px 0 8px;color:var(--txt)}
+.share-actions{display:flex;flex-wrap:wrap;gap:8px}
+.share-actions .mini-btn{min-height:44px}
+.share-note{font-size:.8rem;color:var(--mut);margin-top:8px}
+.share-warn{font-size:.8rem;color:var(--err);margin-top:8px}
 footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}footer a{color:var(--pri);text-decoration:none}
 </style>
 </head>
@@ -91,7 +99,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <path d="M28.8 31.2l2.4 2.4 4.2-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div>
-        <div class="site-ttl">收據 OCR 讀取器 v6.6</div>
+        <div class="site-ttl">收據 OCR 讀取器 v6.7</div>
       </div>
     </div>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深色模式">🌙</button>
@@ -137,10 +145,44 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
           <li>• 識別完成後可以複製全文，或者複製 Markdown。亦可以切換 Markdown 預覽。</li>
           <li>• 只保留較簡單的快速資料：店名、日期、時間、付款方式。</li>
           <li>• 上面先揀語言同引擎，之後先影相 / 揀相，會少好多向下捲動。</li>
+          <li>• iPhone 可以喺相簿撳分享，用「收據 OCR」捷徑帶相片過嚟。第一次要先加入捷徑。</li>
         </ul>
       </div>
     </details>
 
+    <details class="info-panel" id="shareHelp" open>
+      <summary>📲 iPhone：相簿 → 分享 → 收據 OCR</summary>
+      <div class="info-body">
+        <p class="share-lead">加好一次之後，相簿或者檔案撳分享，揀「收據 OCR」，呢頁就會載入嗰張相。再按「開始識別」。</p>
+        <ol class="share-steps">
+          <li>打開「捷徑」App，右上角 ＋，名稱改做 <b>收據 OCR</b>。</li>
+          <li>頂部接收改成「影像」（Images），來源「分享表單」（Share Sheet）。舊版就撳 ⓘ，開啟「在分享表單中顯示」，類型只選影像。</li>
+          <li>加入「調整影像大小」（Resize Image）：最長邊（Longest Edge）<b>1600</b>。</li>
+          <li>加入「轉換影像」（Convert Image）：JPEG、品質約 <b>50%</b>、關閉「保留元資料」（Preserve Metadata）。</li>
+          <li>加入「編碼 Base64」（Base64 Encode）：換行（Line Breaks）揀「無」（None）。</li>
+          <li>加入「取得 URL 內容」（Get Contents of URL）。URL 貼上下面嘅 API，方法 POST，要求主體揀 JSON，加一欄鍵 <b>image</b>，值揀上一步嘅 Base64。如果未自動加標頭，就加 <b>Content-Type</b> 做 <b>application/json</b>。</li>
+          <li>加入「取得字典值」（Get Dictionary Value），鍵填 <b>id</b>。如果佢話輸入唔係字典，就先加「從輸入取得字典」（Get Dictionary from Input）。</li>
+          <li>加入「文字」（Text）：貼上下面嘅頁面網址，最尾接住個 id，中間唔好加空格。</li>
+          <li>加入「開啟 URL」（Open URLs）。</li>
+        </ol>
+        <div class="opt-lbl">API（貼去「取得 URL 內容」）</div>
+        <div class="share-url" id="shareApiUrl"></div>
+        <div class="opt-lbl">頁面網址（貼去「文字」，後面再接 id）</div>
+        <div class="share-url" id="sharePageUrl"></div>
+        <div class="share-actions">
+          <button type="button" class="mini-btn" id="copyApiBtn" data-label="複製 API">複製 API</button>
+          <button type="button" class="mini-btn" id="copyPageBtn" data-label="複製頁面網址">複製頁面網址</button>
+          <button type="button" class="mini-btn" id="hideShareBtn">已加入，收起說明</button>
+        </div>
+        <p class="share-warn" id="shareHostWarn" hidden></p>
+        <p class="share-note">iPhone 嘅 Safari 同主畫面 App 都唔會出現喺系統分享選單，所以要用呢個捷徑。捷徑會先縮小相片，再交去呢個網站大約兩分鐘，頁面一載入就刪走，唔會留收據紀錄。打開嘅係 Safari。第一次運行如果問權限，撳允許。分享選單見唔到，就拉到圖示列最右，撳「編輯動作」，開啟「收據 OCR」。一次分享一張相。</p>
+      </div>
+    </details>
+    <script>
+    try {
+      if (localStorage.getItem('receiptOcrShareHint') === '1') document.getElementById('shareHelp').open = false;
+    } catch (e) {}
+    </script>
 
     <div class="pickers">
       <label class="pick-btn secondary">🖼️ 相簿選相<input type="file" id="rfAlbum" accept="image/*"></label>
@@ -214,7 +256,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput'),
       mdBtn=document.getElementById('mdBtn'), mdPreview=document.getElementById('mdPreview');
 
-  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, mdOn=false;
+  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, mdOn=false, shareSeq=0;
   var langMap={jpn:'日文',cht:'繁體中文',chs:'簡體中文',eng:'英文',auto:'自動偵測'};
   var engineMap={'1':'引擎 1','3':'引擎 3','5':'引擎 5'};
 
@@ -284,6 +326,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   }
 
   function clearAll(){
+    shareSeq++;
     blob=null; fname='receipt'; lastMeta={};
     rfAlbum.value=''; rfCamera.value=''; res.style.display='none'; errBox.style.display='none'; prog.style.display='none';
     prevRow.style.display='none'; prevImg.src=''; prevName.textContent=''; szOrig.textContent=''; szNew.textContent=''; szNew.style.display='none';
@@ -618,6 +661,105 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   cpBtn.addEventListener('click', function(){ copyText(ocrTa.value, cpBtn, '✅ 已複製'); });
   mdCopyBtn.addEventListener('click', function(){ copyText(toMarkdown(ocrTa.value), mdCopyBtn, '✅ 已複製'); });
   mdBtn.addEventListener('click', function(){ setMdPreview(!mdOn); });
+
+  var shareApiUrl=document.getElementById('shareApiUrl'), sharePageUrl=document.getElementById('sharePageUrl'),
+      copyApiBtn=document.getElementById('copyApiBtn'), copyPageBtn=document.getElementById('copyPageBtn'),
+      hideShareBtn=document.getElementById('hideShareBtn'), shareHostWarn=document.getElementById('shareHostWarn'),
+      shareHelp=document.getElementById('shareHelp');
+  var shareApi=location.origin+'/api/share';
+  var sharePage=location.origin+'/?s=';
+  if(shareApiUrl) shareApiUrl.textContent=shareApi;
+  if(sharePageUrl) sharePageUrl.textContent=sharePage;
+  if(copyApiBtn) copyApiBtn.addEventListener('click', function(){ copyText(shareApi, copyApiBtn, '已複製'); });
+  if(copyPageBtn) copyPageBtn.addEventListener('click', function(){ copyText(sharePage, copyPageBtn, '已複製'); });
+  if(hideShareBtn) hideShareBtn.addEventListener('click', function(){
+    try { localStorage.setItem('receiptOcrShareHint', '1'); } catch (e) {}
+    if(shareHelp) shareHelp.open=false;
+  });
+  if(shareHostWarn && location.hostname !== 'ocr.vibecodinglab.net' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'){
+    shareHostWarn.hidden=false;
+    shareHostWarn.textContent='你而家唔係正式網站。日常使用請開 https://ocr.vibecodinglab.net ，再喺嗰頁複製網址去捷徑。';
+  }
+
+  function stripShareParam(){
+    try {
+      var u=new URL(location.href);
+      if(!u.searchParams.has('s')) return;
+      u.searchParams.delete('s');
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) {}
+  }
+
+  function failShare(msg){
+    sb.disabled=true;
+    sb.textContent='請先選擇相片';
+    showErr(msg, false);
+  }
+
+  function sniffShared(arr){
+    if(arr.length>=3 && arr[0]===0xff && arr[1]===0xd8 && arr[2]===0xff) return 'image/jpeg';
+    if(arr.length>=8 && arr[0]===0x89 && arr[1]===0x50 && arr[2]===0x4e && arr[3]===0x47) return 'image/png';
+    if(arr.length>=12 && arr[0]===0x52 && arr[1]===0x49 && arr[2]===0x46 && arr[3]===0x46 && arr[8]===0x57 && arr[9]===0x45 && arr[10]===0x42 && arr[11]===0x50) return 'image/webp';
+    return '';
+  }
+
+  function fileFromShared(b64){
+    var clean=String(b64).replace(/\s+/g, '');
+    var bin=atob(clean);
+    var arr=new Uint8Array(bin.length);
+    var i;
+    for(i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    var mime=sniffShared(arr);
+    if(!mime) return null;
+    var ext=mime==='image/png' ? 'png' : (mime==='image/webp' ? 'webp' : 'jpg');
+    return new File([arr], 'shared-receipt.'+ext, {type:mime});
+  }
+
+  function loadSharedReceipt(){
+    var params;
+    try { params=new URLSearchParams(location.search); } catch (e) { return; }
+    if(!params.has('s')) return;
+    var id=params.get('s') || '';
+    var seq=++shareSeq;
+    stripShareParam();
+    if(!/^[A-Za-z0-9_-]{22}$/.test(id)){
+      failShare('分享連結無效。請再從相簿分享一次，或者直接選相。');
+      return;
+    }
+    sb.disabled=true;
+    sb.textContent='正在載入分享的相片...';
+    fetch('/api/share?id='+encodeURIComponent(id), {cache:'no-store'})
+      .then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(d){ return {ok:r.ok, status:r.status, d:d}; });
+      })
+      .then(function(result){
+        if(seq!==shareSeq) return;
+        if(!result.ok){
+          if(result.status===404) failShare('呢張分享已經用過或者過期（約兩分鐘）。請再從相簿分享一次。');
+          else if(result.status===413) failShare('分享嘅相片太大。請再分享一次，或者改用相簿選相。');
+          else if(result.status===503) failShare('暫時交唔到相片。請再試一次，或者改用相簿選相。');
+          else failShare('載入分享相片失敗。請再分享一次，或者直接選相。');
+          return;
+        }
+        var file=null;
+        try { file=fileFromShared(result.d && result.d.data); } catch (e) { file=null; }
+        if(!file){
+          failShare('分享嘅相片讀唔到。請再分享一次，或者直接選相。');
+          return;
+        }
+        handleFile(file, false);
+        setTimeout(function(){
+          if(seq!==shareSeq) return;
+          prevRow.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 60);
+      })
+      .catch(function(){
+        if(seq!==shareSeq) return;
+        failShare('載入分享相片失敗。請再分享一次，或者直接選相。');
+      });
+  }
+
+  loadSharedReceipt();
 })();
 </script>
 </body>

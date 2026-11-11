@@ -10,6 +10,16 @@ This project turns the original PHP-wrapped static page into `index.html` and mo
 5. Test the deployed site with a small receipt image. In browser DevTools → Network, the request should go to `/api/ocr`, not directly to `api.ocr.space`.
 6. Connect the Spaceship domain after the deployment works: Vercel → Project → Settings → Domains → add the domain and follow the exact DNS records Vercel shows in Spaceship DNS. Do not guess A/CNAME values.
 
+## iPhone share sheet
+
+iOS Safari does not support the Web Share Target API, so this site cannot appear in the iPhone share sheet on its own. The OCR page has one-time steps to add an Apple Shortcut named 收據 OCR.
+
+After that: Photos or Files → Share → 收據 OCR → Safari opens this page with the photo loaded. Tap 開始識別. That uses the same compress-and-OCR flow as choosing a photo.
+
+The shortcut resizes the photo and POSTs it to `/api/share`. The function keeps it in Vercel's built-in runtime cache for 120 seconds. There is no Blob store, KV store, database, or receipt history. The shortcut then opens `/?s=<id>`. The page loads the image once, deletes the handoff, and removes the token from the address bar.
+
+Add the shortcut from the page you will actually use. After production deploy that is `https://ocr.vibecodinglab.net`. A preview URL is a different origin, so a shortcut built there will not talk to production. The link opens Safari, not a home-screen icon. Share one image at a time. No new environment variable is required.
+
 ## Notes
 - The browser sends the compressed image to `/api/ocr`; the function forwards it to OCR.space.
 - This hides the key from page source, but the endpoint is public and can still be abused. Before sharing widely, add rate limiting or authentication and review OCR.space plan limits.
