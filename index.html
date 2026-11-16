@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google" content="notranslate">
-<title>收據 OCR 讀取器 v6.7</title>
+<title>收據 OCR 讀取器 v6.8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -56,10 +56,11 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .btn-go{flex:1;background:var(--pri);color:#fff}.btn-go:disabled{opacity:.58;cursor:not-allowed}.mini-btn{background:var(--sur2);border:1px solid var(--bdr)}
 .prog{display:none;margin-top:10px}.prog-bar{height:6px;background:var(--pri2);border-radius:999px;overflow:hidden}.prog-fill{height:100%;width:0;background:var(--pri);transition:width .22s linear}.prog-lbl{font-size:.8rem;color:var(--mut);text-align:center;margin-top:5px}
 .alert{display:none;border-radius:12px;padding:12px 14px;font-size:.92rem;border:1px solid rgba(157,45,45,.18);background:var(--errbg);color:var(--err);margin-bottom:10px}.retry-btn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;color:var(--pri);font-weight:800;border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur)}
-#res{display:none}.meta-box{display:none;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.meta-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--sur2);border:1px solid var(--bdr);font-size:.8rem;color:var(--mut)}.meta-chip b{color:var(--txt)}
+#res{display:none}
 .ta-hdr{display:flex;justify-content:flex-start;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.help{font-size:.82rem;color:var(--mut)}
-.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.copy-btn.is-copied{background:var(--okbg);color:var(--ok);border-color:transparent}.quick-shot{cursor:pointer}.quick-cam{background:var(--pri3)}
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.copy-btn.is-copied{background:var(--okbg);color:var(--ok);border-color:transparent}
 .ta-hdr .copy-btn{min-height:44px}
+.ta-hdr .quick-shot{cursor:pointer;font-size:.9rem;font-weight:800;min-height:48px;padding:10px 14px;color:var(--prih);background:var(--pri2);border:1.5px solid var(--pri)}
 .ocr-ta{width:100%;min-height:190px;max-height:58dvh;resize:vertical;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);outline:none}.ocr-ta:focus{border-color:var(--pri)}
 .md-preview{min-height:190px;max-height:58dvh;overflow:auto;border-radius:12px;border:1px solid var(--bdr);background:var(--sur2);padding:12px;color:var(--txt);font:.92rem/1.72 var(--jp);overflow-wrap:anywhere}
 .md-preview[hidden],.ocr-ta[hidden]{display:none !important}
@@ -99,7 +100,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <path d="M28.8 31.2l2.4 2.4 4.2-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div>
-        <div class="site-ttl">收據 OCR 讀取器 v6.7</div>
+        <div class="site-ttl">收據 OCR 讀取器 v6.8</div>
       </div>
     </div>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深色模式">🌙</button>
@@ -142,15 +143,15 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
           <li>• 如果出現 e101 / timeout，可以直接按「用引擎 1 重試」。</li>
           <li>• 圖片會自動壓縮到大約 400KB，通常上傳會更快。</li>
           <li>• 已移除金額自動抽取，避免誤將 receipt number 當總額。</li>
-          <li>• 識別完成後可以複製全文，或者複製 Markdown。亦可以切換 Markdown 預覽。</li>
-          <li>• 只保留較簡單的快速資料：店名、日期、時間、付款方式。</li>
+          <li>• 識別完成後可以「複製全文」或者「複製 Markdown」。複製全文會顯示識別文字，複製 Markdown 會以 Markdown 樣式顯示。</li>
+          <li>• 想再辨識另一張，可以按「再揀一張」或者「再影一張」。</li>
           <li>• 上面先揀語言同引擎，之後先影相 / 揀相，會少好多向下捲動。</li>
           <li>• iPhone 可以喺相簿撳分享，用「收據 OCR」捷徑帶相片過嚟。第一次要先加入捷徑。</li>
         </ul>
       </div>
     </details>
 
-    <details class="info-panel" id="shareHelp" open>
+    <details class="info-panel" id="shareHelp">
       <summary>📲 iPhone：相簿 → 分享 → 收據 OCR</summary>
       <div class="info-body">
         <p class="share-lead">加好一次之後，相簿或者檔案撳分享，揀「收據 OCR」，呢頁就會載入嗰張相。再按「開始識別」。</p>
@@ -178,11 +179,6 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <p class="share-note">iPhone 嘅 Safari 同主畫面 App 都唔會出現喺系統分享選單，所以要用呢個捷徑。捷徑會先縮小相片，再交去呢個網站大約兩分鐘，頁面一載入就刪走，唔會留收據紀錄。打開嘅係 Safari。第一次運行如果問權限，撳允許。分享選單見唔到，就拉到圖示列最右，撳「編輯動作」，開啟「收據 OCR」。一次分享一張相。</p>
       </div>
     </details>
-    <script>
-    try {
-      if (localStorage.getItem('receiptOcrShareHint') === '1') document.getElementById('shareHelp').open = false;
-    } catch (e) {}
-    </script>
 
     <div class="pickers">
       <label class="pick-btn secondary">🖼️ 相簿選相<input type="file" id="rfAlbum" accept="image/*"></label>
@@ -228,7 +224,6 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <div class="stitle" style="margin-bottom:2px">OCR 識別文字</div>
         <div class="help" id="taNt"></div>
       </div>
-      <button class="copy-btn" id="mdBtn" type="button" aria-pressed="false" aria-controls="mdPreview">Markdown 預覽</button>
       <button class="copy-btn" id="cpBtn" type="button" data-label="複製全文">複製全文</button>
       <button class="copy-btn" id="mdCopyBtn" type="button" data-label="複製 Markdown">複製 Markdown</button>
       <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
@@ -236,7 +231,6 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       <input type="file" id="nextAlbumInput" accept="image/*" hidden>
       <input type="file" id="nextCameraInput" accept="image/*" capture="environment" hidden>
     </div>
-    <div class="meta-box" id="metaBox"></div>
     <textarea class="ocr-ta" id="ocrTa" rows="10" spellcheck="false"></textarea>
     <div class="md-preview" id="mdPreview" hidden></div>
   </div>
@@ -252,11 +246,11 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       prevRow=document.getElementById('prevRow'), prevImg=document.getElementById('prevImg'), prevName=document.getElementById('prevName'), szOrig=document.getElementById('szOrig'),
       szNew=document.getElementById('szNew'), szNote=document.getElementById('szNote'), prog=document.getElementById('prog'), pf=document.getElementById('pf'), pl=document.getElementById('pl'),
       errBox=document.getElementById('errBox'), errTxt=document.getElementById('errTxt'), retryWrap=document.getElementById('retryWrap'), retryBtn=document.getElementById('retryBtn'),
-      res=document.getElementById('res'), ocrTa=document.getElementById('ocrTa'), taNt=document.getElementById('taNt'), cpBtn=document.getElementById('cpBtn'), mdCopyBtn=document.getElementById('mdCopyBtn'), metaBox=document.getElementById('metaBox'),
+      res=document.getElementById('res'), ocrTa=document.getElementById('ocrTa'), taNt=document.getElementById('taNt'), cpBtn=document.getElementById('cpBtn'), mdCopyBtn=document.getElementById('mdCopyBtn'),
       themeBtn=document.getElementById('themeBtn'), languageSelect=document.getElementById('languageSelect'), engineSelect=document.getElementById('engineSelect'), nextAlbumInput=document.getElementById('nextAlbumInput'), nextCameraInput=document.getElementById('nextCameraInput'),
-      mdBtn=document.getElementById('mdBtn'), mdPreview=document.getElementById('mdPreview');
+      mdPreview=document.getElementById('mdPreview');
 
-  var blob=null, fname='receipt', lastFileUrl='', lastMeta={}, mdOn=false, shareSeq=0;
+  var blob=null, fname='receipt', lastFileUrl='', shareSeq=0;
   var langMap={jpn:'日文',cht:'繁體中文',chs:'簡體中文',eng:'英文',auto:'自動偵測'};
   var engineMap={'1':'引擎 1','3':'引擎 3','5':'引擎 5'};
 
@@ -270,9 +264,6 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   themeBtn.addEventListener('click', function(){ setTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark'); });
 
   function fmt(b){ if(b<1024) return b+'B'; if(b<1048576) return (b/1024).toFixed(0)+'KB'; return (b/1048576).toFixed(2)+'MB'; }
-  function normSpace(s){ return (s||'').replace(/[ \t]+/g,' ').trim(); }
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function pad(s){ return ('0'+s).slice(-2); }
   function copyText(t, btn, doneText){
     var label=btn.getAttribute('data-label') || btn.textContent;
     function flash(msg, ok){
@@ -327,10 +318,10 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
 
   function clearAll(){
     shareSeq++;
-    blob=null; fname='receipt'; lastMeta={};
+    blob=null; fname='receipt';
     rfAlbum.value=''; rfCamera.value=''; res.style.display='none'; errBox.style.display='none'; prog.style.display='none';
     prevRow.style.display='none'; prevImg.src=''; prevName.textContent=''; szOrig.textContent=''; szNew.textContent=''; szNew.style.display='none';
-    szNote.textContent='壓縮中...'; metaBox.innerHTML=''; metaBox.style.display='none'; ocrTa.value=''; resetCopyButtons(); setMdPreview(false); sb.disabled=true; sb.textContent='請先選擇相片';
+    szNote.textContent='壓縮中...'; ocrTa.value=''; resetCopyButtons(); setMdPreview(false); sb.disabled=true; sb.textContent='請先選擇相片';
     if(lastFileUrl){ try{ URL.revokeObjectURL(lastFileUrl); }catch(e){} lastFileUrl=''; }
   }
 
@@ -381,57 +372,6 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
     errTxt.textContent=msg; retryWrap.style.display = showRetry ? 'block' : 'none'; errBox.style.display='block';
     errBox.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
-
-  function extractDate(line){
-    var m=line.match(/(20\d{2})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/); if(m) return m[1]+'/'+pad(m[2])+'/'+pad(m[3]);
-    m=line.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](20\d{2}|\d{2})/); if(m){ var yy=String(m[3]).length===2 ? '20'+m[3] : m[3]; return yy+'/'+pad(m[1])+'/'+pad(m[2]); }
-    return '';
-  }
-
-  function findStore(lines){
-    var bad=/^(tel|〒|receipt|invoice|date|time|table|cashier|reg|no\.?|#|total|subtotal|tax|cash|visa|master|card|change|amount)/i;
-    for(var i=0;i<Math.min(lines.length,8);i++){
-      var s=normSpace(lines[i]).replace(/^[\*\-\s]+/, '');
-      if(!s || bad.test(s)) continue;
-      if(/[\d]{5,}/.test(s) && s.length<10) continue;
-      if(/^[-\d\s:/.]+$/.test(s)) continue;
-      if(s.length>=2) return s;
-    }
-    return '';
-  }
-
-  function findPayment(text){
-    var map=[['現金|cash','現金'],['visa','VISA'],['master|mastercard','Mastercard'],['amex','AMEX'],['jcb','JCB'],['unionpay|銀聯','銀聯'],['八達通|octopus','八達通'],['wechat|微信','WeChat Pay'],['alipay|支付寶','Alipay'],['payme','PayMe'],['apple\\s*pay','Apple Pay'],['google\\s*pay','Google Pay']];
-    for(var i=0;i<map.length;i++){ if(new RegExp(map[i][0], 'i').test(text)) return map[i][1]; }
-    return '';
-  }
-
-  function extractMeta(text){
-    var lines=text.split(/\r\n|\r|\n/).map(normSpace).filter(Boolean), whole=lines.join('\n'), out={};
-    out.store=findStore(lines);
-    for(var i=0;i<lines.length;i++){
-      if(!out.date){ var d=extractDate(lines[i]); if(d) out.date=d; }
-      if(!out.time){ var tm=lines[i].match(/(\d{1,2}:\d{2})(?::\d{2})?/); if(tm) out.time=tm[1]; }
-    }
-    out.payment=findPayment(whole);
-    return out;
-  }
-
-  function renderMeta(meta){
-    metaBox.innerHTML='';
-    var labels={store:'店名',date:'日期',time:'時間',payment:'付款方式'};
-    var order=['store','date','time','payment'];
-    var has=false;
-    order.forEach(function(k){
-      if(!meta[k]) return; has=true;
-      var el=document.createElement('div');
-      el.className='meta-chip';
-      el.innerHTML='<b>'+labels[k]+'</b> '+esc(meta[k]);
-      metaBox.appendChild(el);
-    });
-    metaBox.style.display = has ? 'flex' : 'none';
-  }
-
 
   function blobToDataUrl(inputBlob){
     return new Promise(function(resolve, reject){
@@ -490,9 +430,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   }
 
   function showRes(text, lang, engine){
-    lastMeta=extractMeta(text);
     taNt.textContent='語言: '+(langMap[lang]||lang)+' ｜ 使用: '+(engineMap[engine]||engine)+' ｜ Engine 3 會以 auto 模式送出辨識';
-    renderMeta(lastMeta);
     ocrTa.value=text;
     resetCopyButtons();
     setMdPreview(false);
@@ -644,8 +582,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   }
 
   function setMdPreview(on){
-    mdOn=!!on;
-    if(mdOn){
+    if(on){
       mdPreview.innerHTML=renderMarkdown(ocrTa.value);
       mdPreview.hidden=false;
       ocrTa.hidden=true;
@@ -654,13 +591,16 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
       mdPreview.innerHTML='';
       ocrTa.hidden=false;
     }
-    mdBtn.textContent=mdOn ? '顯示原文' : 'Markdown 預覽';
-    mdBtn.setAttribute('aria-pressed', mdOn ? 'true' : 'false');
   }
 
-  cpBtn.addEventListener('click', function(){ copyText(ocrTa.value, cpBtn, '✅ 已複製'); });
-  mdCopyBtn.addEventListener('click', function(){ copyText(toMarkdown(ocrTa.value), mdCopyBtn, '✅ 已複製'); });
-  mdBtn.addEventListener('click', function(){ setMdPreview(!mdOn); });
+  cpBtn.addEventListener('click', function(){
+    setMdPreview(false);
+    copyText(ocrTa.value, cpBtn, '✅ 已複製');
+  });
+  mdCopyBtn.addEventListener('click', function(){
+    setMdPreview(true);
+    copyText(toMarkdown(ocrTa.value), mdCopyBtn, '✅ 已複製');
+  });
 
   var shareApiUrl=document.getElementById('shareApiUrl'), sharePageUrl=document.getElementById('sharePageUrl'),
       copyApiBtn=document.getElementById('copyApiBtn'), copyPageBtn=document.getElementById('copyPageBtn'),
@@ -672,8 +612,8 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
   if(sharePageUrl) sharePageUrl.textContent=sharePage;
   if(copyApiBtn) copyApiBtn.addEventListener('click', function(){ copyText(shareApi, copyApiBtn, '已複製'); });
   if(copyPageBtn) copyPageBtn.addEventListener('click', function(){ copyText(sharePage, copyPageBtn, '已複製'); });
+  if(shareHelp) shareHelp.open=false;
   if(hideShareBtn) hideShareBtn.addEventListener('click', function(){
-    try { localStorage.setItem('receiptOcrShareHint', '1'); } catch (e) {}
     if(shareHelp) shareHelp.open=false;
   });
   if(shareHostWarn && location.hostname !== 'ocr.vibecodinglab.net' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'){
