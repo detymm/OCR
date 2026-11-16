@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google" content="notranslate">
-<title>收據 OCR 讀取器 v6.8</title>
+<title>收據 OCR 讀取器 v6.9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -57,7 +57,9 @@ html[data-theme="dark"] .dz{border-color:rgba(102,174,180,.34)}.dz.over{border-c
 .prog{display:none;margin-top:10px}.prog-bar{height:6px;background:var(--pri2);border-radius:999px;overflow:hidden}.prog-fill{height:100%;width:0;background:var(--pri);transition:width .22s linear}.prog-lbl{font-size:.8rem;color:var(--mut);text-align:center;margin-top:5px}
 .alert{display:none;border-radius:12px;padding:12px 14px;font-size:.92rem;border:1px solid rgba(157,45,45,.18);background:var(--errbg);color:var(--err);margin-bottom:10px}.retry-btn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;color:var(--pri);font-weight:800;border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur)}
 #res{display:none}
-.ta-hdr{display:flex;justify-content:flex-start;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.help{font-size:.82rem;color:var(--mut)}
+.ta-hdr{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-bottom:8px}.help{font-size:.82rem;color:var(--mut)}
+.ta-actions{display:flex;flex-direction:column;gap:8px;width:100%}
+.ta-row{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:8px}
 .copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.82rem;color:var(--pri);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;background:var(--sur2)}.copy-btn.is-copied{background:var(--okbg);color:var(--ok);border-color:transparent}
 .ta-hdr .copy-btn{min-height:44px}
 .ta-hdr .quick-shot{cursor:pointer;font-size:.9rem;font-weight:800;min-height:48px;padding:10px 14px;color:var(--prih);background:var(--pri2);border:1.5px solid var(--pri)}
@@ -100,7 +102,7 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <path d="M28.8 31.2l2.4 2.4 4.2-4.4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div>
-        <div class="site-ttl">收據 OCR 讀取器 v6.8</div>
+        <div class="site-ttl">收據 OCR 讀取器 v6.9</div>
       </div>
     </div>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="切換深色模式">🌙</button>
@@ -224,10 +226,16 @@ footer{text-align:center;color:var(--fnt);font-size:.78rem;padding-top:6px}foote
         <div class="stitle" style="margin-bottom:2px">OCR 識別文字</div>
         <div class="help" id="taNt"></div>
       </div>
-      <button class="copy-btn" id="cpBtn" type="button" data-label="複製全文">複製全文</button>
-      <button class="copy-btn" id="mdCopyBtn" type="button" data-label="複製 Markdown">複製 Markdown</button>
-      <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
-      <label class="copy-btn quick-shot quick-cam" for="nextCameraInput">再影一張</label>
+      <div class="ta-actions">
+        <div class="ta-row">
+          <button class="copy-btn" id="cpBtn" type="button" data-label="複製全文">複製全文</button>
+          <button class="copy-btn" id="mdCopyBtn" type="button" data-label="複製 Markdown">複製 Markdown</button>
+        </div>
+        <div class="ta-row">
+          <label class="copy-btn quick-shot" for="nextAlbumInput">再揀一張</label>
+          <label class="copy-btn quick-shot quick-cam" for="nextCameraInput">再影一張</label>
+        </div>
+      </div>
       <input type="file" id="nextAlbumInput" accept="image/*" hidden>
       <input type="file" id="nextCameraInput" accept="image/*" capture="environment" hidden>
     </div>
